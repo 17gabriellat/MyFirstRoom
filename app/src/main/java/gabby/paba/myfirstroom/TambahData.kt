@@ -1,6 +1,7 @@
 package gabby.paba.myfirstroom
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
@@ -52,6 +53,39 @@ class TambahData : AppCompatActivity() {
                         tanggal
                     )
                 )
+            }
+        }
+
+        var iID : Int = 0
+        var iAddEdit : Int = 0
+
+        iID = intent.getIntExtra("noteId", 0)
+        iAddEdit = intent.getIntExtra("addEdit", 0)
+
+        if(iAddEdit == 0){
+            _btnTambah.visibility = View.VISIBLE
+            _btnUpdate.visibility = View.GONE
+            _etJudul.isEnabled = true
+        }else{
+            _btnTambah.visibility = View.GONE
+            _btnUpdate.visibility = View.VISIBLE
+            _etJudul.isEnabled = false
+
+            CoroutineScope(Dispatchers.IO).async {
+                val noteItem = DB.funnoteDao().getNote(iID)
+                _etJudul.setText(noteItem.judul)
+                _etDeskripsi.setText(noteItem.deskripsi)
+            }
+        }
+
+        _btnUpdate.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).async {
+                DB.funnoteDao().update(
+                    _etJudul.text.toString(),
+                    _etDeskripsi.text.toString(),
+                    iID
+                )
+                finish()
             }
         }
     }
